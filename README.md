@@ -1,6 +1,12 @@
 # Workout Tracker
+Need to track your workouts? This app is your answer!
+Input your workouts and track your progress over time. 
+
 
 ## Links
+* git repo: https://github.com/Patelso9/workoutTracker
+* heroku: https://workout-tracker-patelso9.herokuapp.com/
+
 
 
 
