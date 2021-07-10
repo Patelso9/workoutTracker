@@ -5,8 +5,8 @@ const Workout = require("../models/Workout");
 router.post('/api/workouts', (req, res) => {
     console.log('API POST /api/workouts', res)
     Workout.create()
-    .then(dbExercise => {
-        res.json(dbExercise)
+    .then(dbWorkout => {
+        res.json(dbWorkout)
     }).catch(err => res.status(400).json(err))
 });
 
@@ -14,8 +14,8 @@ router.post('/api/workouts', (req, res) => {
 router.put('/api/workouts:id', ({ body, params }, res) => {
     console.log('API PUT /api/workouts:id',params.id)
     Workout.findByIdAndUpdate(params.id, { $push: { exercises: body } })
-    .then((dbExercise) => {
-        res.json(dbExercise)
+    .then((dbWorkout) => {
+        res.json(dbWorkout)
     }).catch(err => res.status(400).json(err))
 })
 
@@ -24,23 +24,23 @@ router.get('/api/workouts/:id', ({ params }, res) => {
     console.log('API GET /api/workouts/:id',params.id)
     Workout.findById (params.id)
     .sort({ _id: -1 })
-    .then((dbExercise) => {
-        res.json(dbExercise)
+    .then((dbWorkout) => {
+        res.json(dbWorkout)
     }).catch(err => res.status(400).json(err))
 })
 
 //see all workouts
 router.get('/api/workouts', (req, res) =>{
-    console.log('API GET /api/workouts', dbExercise)
+    // console.log('API GET /api/workouts', dbWorkout)
     Workout.aggregate([
         { $addFields:{
             totalDuration: {$sum: "excercises.duration"},
             totalWeight: {$sum: "excercises.weight"},
         }}
     ])
-    .then((dbExercise) => {
+    .then((dbWorkout) => {
         console.log('added fields', totalDuration, totalWeight)
-        res.json(dbExercise)
+        res.json(dbWorkout)
     }).catch(err => res.status(400).json(err))
 })
 
@@ -53,9 +53,9 @@ router.get('/api/workouts/range', (req, res) =>{
             totalWeight: {$sum: "excercises.weight"},
         }}
     ]).sort({_id: -1}).limit(7)
-    .then((dbExercise) => {
+    .then((dbWorkout) => {
         console.log('added fields', totalDuration, totalWeight)
-        res.json(dbExercise)
+        res.json(dbWorkout)
     }).catch(err => res.status(400).json(err))
 })
 
