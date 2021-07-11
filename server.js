@@ -10,8 +10,8 @@ const app = express();
 app.use(logger("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static("public"));
-// app.use(express.static(path.join(__dirname, "public")));
+// app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
 // routes
 app.use(require("./routes/api.js"));

@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const Workout = require("../models/Workout");
 
-//get all workouts
+//get all workouts--- WORKING
 router.get('/api/workouts', (req, res) =>{
     console.log('API GET /api/workouts')
 
@@ -22,48 +22,36 @@ router.get('/api/workouts', (req, res) =>{
         console.log('err loading API GET /api/workouts', dbWorkout)
         res.status(400).json(err)
     })
-    // Workout.aggregate([
-    //     { $addFields:{
-    //         totalDuration: {$sum: "excercises.duration"},
-    //         totalWeight: {$sum: "excercises.weight"},
-    //     }}
-    // ])
-    
-        // console.log('added fields', dbWorkout)  
+
 })
 
-//add new exercise
-router.post('/api/workouts', ({ body }, res) => {
+//add new exercise --??
+router.post('/api/workouts', (req, res) => {
     console.log('API POST /api/workouts')
 
-    Workout.create(body)
+    Workout.create(req.body)
     .then(dbWorkout => {
         res.json(dbWorkout)
     })
     .catch(err => res.status(400).json(err))
 });
 
-//update workout
-router.put('/api/workouts:id', ({ body, params }, res) => {
+//update workout --??
+router.put('/api/workouts:id', (req, res) => {
     console.log('API PUT /api/workouts:id')
 
-    Workout.findByIdAndUpdate(params.id, { 
-        $push: { exercises: body } 
-    })
-    .then((dbWorkout) => {
+    Workout.findOneAndUpdate(
+        {_id: req.params.id }, 
+        {
+            $inc: { totalDuration: req.body.duration }, 
+            $push: { exercises: req.body } 
+        },
+        { new: true }
+    )
+    .then(dbWorkout => {
         res.json(dbWorkout)
     })
     .catch(err => res.status(400).json(err))
-})
-
-//find workout by ID
-router.get('/api/workouts/:id', ({ params }, res) => {
-    console.log('API GET /api/workouts/:id')
-    Workout.findById (params.id)
-    .sort({ _id: -1 })
-    .then((dbWorkout) => {
-        res.json(dbWorkout)
-    }).catch(err => res.status(400).json(err))
 })
 
 
@@ -86,9 +74,10 @@ router.get('/api/workouts/range', (req, res) =>{
 })
 
 //delete by id
-router.delete('/api/workouts/:id', ({ params }, res) =>{
+router.delete('/api/workouts/:id', (req, res) =>{
     console.log('API DELETE /api/workouts/:id')
-    Workout.findByIdAndDelete(params.id)
+
+    Workout.findByIdAndDelete(req.params.id)
     .then(() => {
         console.log('deleted fields', params.id)
         return res.json(true)
@@ -96,3 +85,31 @@ router.delete('/api/workouts/:id', ({ params }, res) =>{
 })
 
 module.exports = router;
+
+
+
+
+
+//----------------------------OLD CODE----------------------------//
+
+    //-----GET all workouts, did not work---------//
+    // Workout.aggregate([
+    //     { $addFields:{
+    //         totalDuration: {$sum: "excercises.duration"},
+    //         totalWeight: {$sum: "excercises.weight"},
+    //     }}
+    // ])
+    
+        // console.log('added fields', dbWorkout)  
+
+
+
+    // --------find workout by ID-------------
+// router.get('/api/workouts/:id', ({ params }, res) => {
+//     console.log('API GET /api/workouts/:id')
+//     Workout.findById (params.id)
+//     .sort({ _id: -1 })
+//     .then((dbWorkout) => {
+//         res.json(dbWorkout)
+//     }).catch(err => res.status(400).json(err))
+// })
