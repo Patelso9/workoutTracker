@@ -1,22 +1,59 @@
 const router = require("express").Router();
 const Workout = require("../models/Workout");
 
+//get all workouts
+router.get('/api/workouts', (req, res) =>{
+    console.log('API GET /api/workouts')
+
+    Workout.find({})
+    .then(dbWorkout => {
+        console.log('Get all workouts')
+
+        dbWorkout.forEach(workout=> {
+            var total = 0;
+            workout.exercises.forEach(e => {
+                total += e.duration;
+            });
+            workout.totalDuration = total;
+        });
+        res.json(dbWorkout)
+    })
+    .catch(err => {
+        console.log('err loading API GET /api/workouts', dbWorkout)
+        res.status(400).json(err)
+    })
+    // Workout.aggregate([
+    //     { $addFields:{
+    //         totalDuration: {$sum: "excercises.duration"},
+    //         totalWeight: {$sum: "excercises.weight"},
+    //     }}
+    // ])
+    
+        // console.log('added fields', dbWorkout)  
+})
+
 //add new exercise
-router.post('/api/workouts', (body, res) => {
+router.post('/api/workouts', ({ body }, res) => {
     console.log('API POST /api/workouts')
-    Workout.create()
+
+    Workout.create(body)
     .then(dbWorkout => {
         res.json(dbWorkout)
-    }).catch(err => res.status(400).json(err))
+    })
+    .catch(err => res.status(400).json(err))
 });
 
 //update workout
 router.put('/api/workouts:id', ({ body, params }, res) => {
     console.log('API PUT /api/workouts:id')
-    Workout.findByIdAndUpdate(params.id, { $push: { exercises: body } })
+
+    Workout.findByIdAndUpdate(params.id, { 
+        $push: { exercises: body } 
+    })
     .then((dbWorkout) => {
         res.json(dbWorkout)
-    }).catch(err => res.status(400).json(err))
+    })
+    .catch(err => res.status(400).json(err))
 })
 
 //find workout by ID
@@ -29,34 +66,23 @@ router.get('/api/workouts/:id', ({ params }, res) => {
     }).catch(err => res.status(400).json(err))
 })
 
-//see all workouts
-router.get('/api/workouts', (req, res) =>{
-    console.log('API GET /api/workouts')
-    Workout.aggregate([
-        { $addFields:{
-            totalDuration: {$sum: "excercises.duration"},
-            totalWeight: {$sum: "excercises.weight"},
-        }}
-    ])
-    .then((dbWorkout) => {
-        console.log('added fields', totalDuration, totalWeight)
-        res.json(dbWorkout)
-    }).catch(err => res.status(400).json(err))
-})
 
 //see all workouts in a range
 router.get('/api/workouts/range', (req, res) =>{
     console.log('API GET /api/workouts/range')
+
     Workout.aggregate([
         { $addFields:{
-            totalDuration: {$sum: "excercises.duration"},
-            totalWeight: {$sum: "excercises.weight"},
+            totalDuration: {$sum: 'excercises.duration'},
+            totalWeight: {$sum: 'excercises.weight'},
         }}
-    ]).sort({_id: -1}).limit(7)
-    .then((dbWorkout) => {
-        console.log('added fields', totalDuration, totalWeight)
-        res.json(dbWorkout)
-    }).catch(err => res.status(400).json(err))
+    ])
+    .sort({_id: -1}).limit(7)
+    .then((data) => {
+        console.log('added fields', data)
+        res.json(data)
+    })
+    .catch(err => res.status(400).json(err))
 })
 
 //delete by id
