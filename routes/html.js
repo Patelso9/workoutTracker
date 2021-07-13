@@ -2,14 +2,14 @@ const router = require("express").Router();
 const path = require("path");
 
 //localhost:300/
-router.get('/', (req, res) => {
-    console.log ('html GET /')
-    res.sendFile(path.join(__dirname, '../public/index.html'))
-});
+// router.get('/', (req, res) => {
+//     console.log ('html GET /')
+//     res.sendFile(path.join(__dirname, '../public/index.html'))
+// });
 
 
 //localhost:300/excercise
-router.get('/excercise', (req, res) => {
+router.get('/exercise', (req, res) => {
     console.log ('html GET /exercise')
     res.sendFile(path.join(__dirname, '../public/exercise.html'))
 });

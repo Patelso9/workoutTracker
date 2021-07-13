@@ -1,11 +1,11 @@
 const router = require("express").Router();
-const Workout = require("../models/Workout");
+const db = require("../models");
 
 //get all workouts--- WORKING
-router.get('/api/workouts', (req, res) =>{
+router.get('/api/workouts', ({ body }, res) =>{
     console.log('API GET /api/workouts')
 
-    Workout.find({})
+    db.Workout.find({})
     .then(dbWorkout => {
         console.log('Get all workouts')
 
@@ -26,10 +26,10 @@ router.get('/api/workouts', (req, res) =>{
 })
 
 //add new exercise --??
-router.post('/api/workouts', (req, res) => {
+router.post('/api/workouts', ({ body }, res) => {
     console.log('API POST /api/workouts')
 
-    Workout.create(req.body)
+    db.Workout.create(body)
     .then(dbWorkout => {
         res.json(dbWorkout)
     })
@@ -37,16 +37,16 @@ router.post('/api/workouts', (req, res) => {
 });
 
 //update workout --??
-router.put('/api/workouts:id', (req, res) => {
+router.put('/api/workouts:id', ({ body, params }, res) => {
     console.log('API PUT /api/workouts:id')
-
-    Workout.findOneAndUpdate(
-        {_id: req.params.id }, 
-        {
-            $inc: { totalDuration: req.body.duration }, 
-            $push: { exercises: req.body } 
-        },
-        { new: true }
+    // let id = params.id
+    db.Workout.findOneAndUpdate(
+        { _id: params.id },
+        { $push: { exercises: body } },
+        { 
+            new: true,
+            runValidators: true
+        }
     )
     .then(dbWorkout => {
         res.json(dbWorkout)
@@ -59,15 +59,15 @@ router.put('/api/workouts:id', (req, res) => {
 router.get('/api/workouts/range', (req, res) =>{
     console.log('API GET /api/workouts/range')
 
-    Workout.aggregate([
+    db.Workout.aggregate([
         { $addFields:{
-            totalDuration: {$sum: 'excercises.duration'},
-            totalWeight: {$sum: 'excercises.weight'},
+            totalDuration: {$sum: req.body.totalDuration},
+            // totalWeight: {$sum: 'excercises.weight'},
         }}
     ])
     .sort({_id: -1}).limit(7)
     .then((data) => {
-        console.log('added fields', data)
+        console.log('all workouts in ranga', data)
         res.json(data)
     })
     .catch(err => res.status(400).json(err))
@@ -77,7 +77,7 @@ router.get('/api/workouts/range', (req, res) =>{
 router.delete('/api/workouts/:id', (req, res) =>{
     console.log('API DELETE /api/workouts/:id')
 
-    Workout.findByIdAndDelete(req.params.id)
+    db.Workout.findByIdAndDelete(req.params.id)
     .then(() => {
         console.log('deleted fields', params.id)
         return res.json(true)
