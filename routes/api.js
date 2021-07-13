@@ -37,17 +37,20 @@ router.post('/api/workouts', ({ body }, res) => {
 });
 
 //update workout --??
-router.put('/api/workouts:id', ({ body, params }, res) => {
-    console.log('API PUT /api/workouts:id')
+router.put('/api/workouts/:id', ({ body, params }, res) => {
+    console.log('API PUT /api/workouts/:id')
+    console.log(params)
+    console.log(body)
     // let id = params.id
     Workout.findOneAndUpdate(
-   params.id,
-   { $push: { exercises: body } },
+        {  _id: params.id },
+        { $push: { exercises: body } },
     
 //    run validation to make sure new exercise meets our schema data
-{new: true, runValidators: true}
+    {new: true, runValidators: true}
     )
     .then((dbWorkout) => {
+        console.log(dbWorkout)
         res.json(dbWorkout);
     })
     .catch((err) => {
@@ -59,6 +62,7 @@ router.put('/api/workouts:id', ({ body, params }, res) => {
 //see all workouts in a range
 router.get('/api/workouts/range', (req, res) =>{
     console.log('API GET /api/workouts/range')
+    console.log(req.body)
 
     Workout.aggregate([
         { $addFields:{
