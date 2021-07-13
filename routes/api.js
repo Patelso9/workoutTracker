@@ -1,11 +1,11 @@
 const router = require("express").Router();
-const db = require("../models");
+const Workout = require("../models/Workout.js");
 
 //get all workouts--- WORKING
 router.get('/api/workouts', ({ body }, res) =>{
     console.log('API GET /api/workouts')
 
-    db.Workout.find({})
+    Workout.find({})
     .then(dbWorkout => {
         console.log('Get all workouts')
 
@@ -29,7 +29,7 @@ router.get('/api/workouts', ({ body }, res) =>{
 router.post('/api/workouts', ({ body }, res) => {
     console.log('API POST /api/workouts')
 
-    db.Workout.create(body)
+    Workout.create(body)
     .then(dbWorkout => {
         res.json(dbWorkout)
     })
@@ -40,26 +40,27 @@ router.post('/api/workouts', ({ body }, res) => {
 router.put('/api/workouts:id', ({ body, params }, res) => {
     console.log('API PUT /api/workouts:id')
     // let id = params.id
-    db.Workout.findOneAndUpdate(
-        { _id: params.id },
-        { $push: { exercises: body } },
-        { 
-            new: true,
-            runValidators: true
-        }
+    Workout.findOneAndUpdate(
+   params.id,
+   { $push: { exercises: body } },
+    
+//    run validation to make sure new exercise meets our schema data
+{new: true, runValidators: true}
     )
-    .then(dbWorkout => {
-        res.json(dbWorkout)
+    .then((dbWorkout) => {
+        res.json(dbWorkout);
     })
-    .catch(err => res.status(400).json(err))
-})
+    .catch((err) => {
+        res.json(err)
+    });
+});
 
 
 //see all workouts in a range
 router.get('/api/workouts/range', (req, res) =>{
     console.log('API GET /api/workouts/range')
 
-    db.Workout.aggregate([
+    Workout.aggregate([
         { $addFields:{
             totalDuration: {$sum: req.body.totalDuration},
             // totalWeight: {$sum: 'excercises.weight'},
@@ -77,7 +78,7 @@ router.get('/api/workouts/range', (req, res) =>{
 router.delete('/api/workouts/:id', (req, res) =>{
     console.log('API DELETE /api/workouts/:id')
 
-    db.Workout.findByIdAndDelete(req.params.id)
+    Workout.findByIdAndDelete(req.params.id)
     .then(() => {
         console.log('deleted fields', params.id)
         return res.json(true)
